@@ -3,14 +3,12 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
-	"github.com/maliven1/go_final_project/db"
+	database "github.com/maliven1/go_final_project/db"
 	"github.com/maliven1/go_final_project/entity"
 )
 
@@ -26,7 +24,7 @@ type TaskResponse struct {
 	Task []entity.AddTask `json:"tasks"`
 }
 
-func NewTaskHandler(db db.DB) func(res http.ResponseWriter, req *http.Request) {
+func NewTaskHandler(db database.DB) func(res http.ResponseWriter, req *http.Request) {
 	return func(res http.ResponseWriter, req *http.Request) {
 		var task entity.Task
 		var buf bytes.Buffer
@@ -55,10 +53,8 @@ func NewTaskHandler(db db.DB) func(res http.ResponseWriter, req *http.Request) {
 		if task.Date < now.Format(Layout) {
 			task.Date = now.Format(Layout)
 		}
-		if task.Repeat == "" {
-			task.Date = now.Format(Layout)
-		} else {
-			_, err := nextDate(now, task.Date, task.Repeat)
+		if task.Repeat != "" {
+			_, err := database.NextDate(now, task.Date, task.Repeat)
 			if err != nil {
 				responseWhithError(res, "Не верное условие повторения")
 				return
@@ -91,7 +87,7 @@ func NextDateHandler(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, "Некорректный формат даты", http.StatusBadRequest)
 		return
 	}
-	nextDate, err := nextDate(nowTime, date, repeat)
+	nextDate, err := database.NextDate(nowTime, date, repeat)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
@@ -104,57 +100,6 @@ func NextDateHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func nextDate(now time.Time, date string, repeat string) (string, error) {
-	//проверка на пустой repeat
-	if repeat == "" {
-		return "", fmt.Errorf("не указан repeat")
-	}
-
-	startDate, err := time.Parse(Layout, date)
-	//проверка на неверный формат даты
-	if err != nil {
-		return "", fmt.Errorf("неверный формат даты: %v", err)
-	}
-	//разделяем правило на тип правила и его аргумент
-	ruleSplited := strings.Split(repeat, " ")
-	//тип правила
-	ruleType := ruleSplited[0]
-
-	switch ruleType {
-	case "d":
-		if len(ruleSplited) < 2 {
-			return "", fmt.Errorf("не указано количество дней")
-		}
-		//количество дней для переноса задачи
-		daysToMove, err := strconv.Atoi(ruleSplited[1])
-
-		if err != nil {
-			return "", err
-		}
-		if daysToMove > 400 {
-
-			return "", fmt.Errorf("количество дней не должно превышать 400")
-		}
-		newDate := startDate.AddDate(0, 0, daysToMove)
-		//проверяем, что возвращаемая дата не меньше текущей, если меньше - сдвигаем на указанное количество дней
-		for newDate.Before(now) {
-			newDate = newDate.AddDate(0, 0, daysToMove)
-		}
-		return newDate.Format(Layout), nil
-
-	case "y":
-		newDate := startDate.AddDate(1, 0, 0)
-		//проверяем, что возвращаемая дата не меньше текущей, если меньше - сдвигаем еще на год
-		for newDate.Before(now) {
-			newDate = newDate.AddDate(1, 0, 0)
-		}
-		return newDate.Format(Layout), nil
-
-	default:
-		return "", fmt.Errorf("некорректный тип правила")
-	}
-
-}
 func responseWhithOk(res http.ResponseWriter, s string) {
 	r, _ := json.Marshal(ScResponse{ID: s})
 	res.WriteHeader(http.StatusOK)
@@ -167,6 +112,16 @@ func responseWhithError(res http.ResponseWriter, s string) {
 }
 func responseWithTasks(res http.ResponseWriter, s []entity.AddTask) {
 	r, _ := json.Marshal(TaskResponse{Task: s})
+	res.WriteHeader(http.StatusOK)
+	res.Write(r)
+}
+func responseWithTasksT(res http.ResponseWriter, s entity.AddTask) {
+	r, _ := json.Marshal(s)
+	res.WriteHeader(http.StatusOK)
+	res.Write(r)
+}
+func responseWithTasksConfirm(res http.ResponseWriter, s entity.DeleteTask) {
+	r, _ := json.Marshal(s)
 	res.WriteHeader(http.StatusOK)
 	res.Write(r)
 }

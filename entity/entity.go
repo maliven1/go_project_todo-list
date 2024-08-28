@@ -17,5 +17,7 @@ type GetSearchTask struct {
 	Date  *string `json:"date"`
 	Title *string `json:"title"`
 }
+type DeleteTask struct {
+}
 
 //func конструктор с новой таской. серил десер.
