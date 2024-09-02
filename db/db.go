@@ -146,19 +146,15 @@ func (db DB) DeleteID(id string) (entity.AddTask, error) {
 	return entity.AddTask{}, nil
 }
 func NextDate(now time.Time, date string, repeat string) (string, error) {
-	//проверка на пустой repeat
 	if repeat == "" {
 		return "", fmt.Errorf("не указан repeat")
 	}
 
 	startDate, err := time.Parse(Layout, date)
-	//проверка на неверный формат даты
 	if err != nil {
 		return "", fmt.Errorf("неверный формат даты: %v", err)
 	}
-	//разделяем правило на тип правила и его аргумент
 	ruleSplited := strings.Split(repeat, " ")
-	//тип правила
 	ruleType := ruleSplited[0]
 
 	switch ruleType {
@@ -166,7 +162,7 @@ func NextDate(now time.Time, date string, repeat string) (string, error) {
 		if len(ruleSplited) < 2 {
 			return "", fmt.Errorf("не указано количество дней")
 		}
-		//количество дней для переноса задачи
+
 		daysToMove, err := strconv.Atoi(ruleSplited[1])
 
 		if err != nil {
@@ -177,7 +173,6 @@ func NextDate(now time.Time, date string, repeat string) (string, error) {
 			return "", fmt.Errorf("количество дней не должно превышать 400")
 		}
 		newDate := startDate.AddDate(0, 0, daysToMove)
-		//проверяем, что возвращаемая дата не меньше текущей, если меньше - сдвигаем на указанное количество дней
 		for newDate.Before(now) {
 			newDate = newDate.AddDate(0, 0, daysToMove)
 		}
@@ -185,7 +180,6 @@ func NextDate(now time.Time, date string, repeat string) (string, error) {
 
 	case "y":
 		newDate := startDate.AddDate(1, 0, 0)
-		//проверяем, что возвращаемая дата не меньше текущей, если меньше - сдвигаем еще на год
 		for newDate.Before(now) {
 			newDate = newDate.AddDate(1, 0, 0)
 		}

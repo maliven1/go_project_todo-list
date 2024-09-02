@@ -125,3 +125,10 @@ func responseWithTasksConfirm(res http.ResponseWriter, s entity.DeleteTask) {
 	res.WriteHeader(http.StatusOK)
 	res.Write(r)
 }
+
+func responseWithConfirmPas(res http.ResponseWriter, s entity.TokenJson) {
+	r, _ := json.Marshal(s)
+	res.WriteHeader(http.StatusOK)
+	res.Write(r)
+
+}
