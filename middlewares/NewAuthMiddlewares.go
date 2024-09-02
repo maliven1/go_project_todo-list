@@ -36,7 +36,6 @@ func NewAuthMeddlewares() func(next http.Handler) http.Handler {
 				}
 				if err != nil {
 					fmt.Printf("failed to parse token: %s\n", err)
-					return
 				}
 
 				var valid bool

@@ -8,14 +8,16 @@ RUN go mod download
 
 COPY . ./
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /final
 
 FROM alpine:latest
 
 EXPOSE 7540
 
-COPY --from=builder  bin .
+COPY  web ./web
 
-COPY --from=builder  scheduler.db .
+COPY --from=builder  final . 
 
-CMD ["/bin"]
+COPY scheduler.db .
+
+CMD ["/final"]

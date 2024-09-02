@@ -29,3 +29,7 @@ var Token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IjEzMjQ2NTc5OD
 
 *На данном этапе нет первого задания со звездочкой, второго, третьего. И также пароль хранится в коде на данный момент.
 *планирую доделать все задания
+
+Создаю и запускаю контейнер: 
+ docker build -t maliven1/todo-list:v1.0.0 .
+ docker run -p 7540:7540 -v schedule.db:schedule.db maliven1/todo-list:v1.0.0 
