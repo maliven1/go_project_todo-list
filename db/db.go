@@ -380,45 +380,6 @@ func MonthComparison(startDate time.Time, SplitRule []string) (time.Time, error)
 	return res, nil
 }
 
-// func DayComparison(startDate time.Time, timeDur time.Time, SplitRule []string) (string, error) {
-// 	for _, v := range SplitRule {
-// 		newDate := startDate
-// 		daysToMove, err := strconv.Atoi(v)
-// 		if err != nil {
-// 			return "", err
-// 		}
-// 		d := startDate.AddDate(0, 1, -startDate.Day())
-// 		x := d.Day()
-// 		if daysToMove > x {
-// 			daysToMove = x
-// 		}
-// 		if daysToMove > 31 || daysToMove == 0 {
-// 			return "", fmt.Errorf("Нет такого дня недели")
-// 		}
-
-// 		if daysToMove < 0 {
-// 			daysToMove = daysIn(startDate.Month(), startDate.Year()) + daysToMove + 1
-// 		}
-// 		// if startDate >= time.Date(startDate.Year(), startDate.Month(), daysToMove, 0, 0, 0, 0, time.UTC) {
-
-// 		// }
-
-// 		var Time = true
-// 		for Time {
-// 			newDate = newDate.AddDate(0, 0, 1)
-// 			if int(newDate.Day()) == daysToMove {
-// 				Time = false
-// 			}
-// 		}
-// 		timeDurint, _ := strconv.Atoi(timeDur.Format(Layout))
-// 		newDateint, _ := strconv.Atoi(newDate.Format(Layout))
-// 		if timeDurint > newDateint {
-// 			timeDur = newDate
-// 		}
-// 	}
-// 	return timeDur.Format(Layout), nil
-// }
-
 func WeekComparison(newDate time.Time, daysToMove int) int {
 	var Time = true
 	n := 0
