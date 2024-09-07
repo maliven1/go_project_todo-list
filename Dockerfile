@@ -12,12 +12,14 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /final
 
 FROM alpine:latest
 
-EXPOSE 7540
+COPY .env .
+
+EXPOSE ${TODO_PORT}
 
 COPY  web ./web
 
 COPY --from=builder  final . 
 
-COPY scheduler.db .
+COPY ${TODO_DBFILE} .
 
 CMD ["/final"]

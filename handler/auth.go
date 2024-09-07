@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/maliven1/go_final_project/entity"
@@ -12,10 +13,8 @@ import (
 
 var secret = []byte("dsa53219nlxvnju")
 
-var TODO_PASSWORD = "1324657980"
-
 var claims = jwt.MapClaims{
-	"password": TODO_PASSWORD,
+	"password": os.Getenv("TODO_PASSWORD"),
 }
 
 func SignToken() string {
@@ -42,7 +41,7 @@ func AuthorizationGenerateToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if UserPass.Password == TODO_PASSWORD {
+	if UserPass.Password == os.Getenv("TODO_PASSWORD") {
 		TokenJson.Token = SignToken()
 		responseWithConfirmPas(w, TokenJson)
 		return

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -23,7 +24,6 @@ type DB struct {
 func GetTaskSearch(db DB, search string) ([]entity.AddTask, error) {
 	var task entity.AddTask
 	var tasks []entity.AddTask
-	Layout := "20060102"
 	limit := 40
 	searchLayout := "02.01.2006"
 	searchData, err := time.Parse(searchLayout, search)
@@ -146,6 +146,7 @@ func (db DB) DeleteID(id string) (entity.AddTask, error) {
 	return entity.AddTask{}, nil
 }
 func NextDate(now time.Time, date string, repeat string) (string, error) {
+
 	if repeat == "" {
 		return "", fmt.Errorf("не указан repeat")
 	}
@@ -154,6 +155,7 @@ func NextDate(now time.Time, date string, repeat string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("неверный формат даты: %v", err)
 	}
+
 	ruleSplited := strings.Split(repeat, " ")
 	ruleType := ruleSplited[0]
 
@@ -185,10 +187,249 @@ func NextDate(now time.Time, date string, repeat string) (string, error) {
 		}
 		return newDate.Format(Layout), nil
 
+	case "w":
+
+		if len(ruleSplited) < 2 {
+			return "", fmt.Errorf("не указано количество дней")
+		}
+		SplitRule := strings.Split(ruleSplited[1], ",")
+		for startDate.Year() < now.Year() {
+			startDate = time.Date(now.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, time.UTC)
+		}
+		timeDur := startDate.AddDate(0, 0, 7) //edasdsa
+
+		for _, v := range SplitRule {
+			newDate := startDate
+			daysToMove, err := strconv.Atoi(v)
+			if err != nil {
+				return "", err
+			}
+
+			if daysToMove == 7 {
+				daysToMove = 0
+			}
+			if daysToMove >= 7 || daysToMove < 0 {
+				return "", fmt.Errorf("Нет такого дня недели")
+			}
+			n := WeekComparison(newDate, daysToMove)
+			newDate = startDate.AddDate(0, 0, n)
+			timeDurint, _ := strconv.Atoi(timeDur.Format(Layout))
+			newDateint, _ := strconv.Atoi(newDate.Format(Layout))
+			if timeDurint > newDateint {
+				timeDur = newDate
+			}
+		}
+
+		return timeDur.Format(Layout), nil
+	case "m":
+		// now = time.Date(2024, time.January, 20, 0, 0, 0, 0, time.Local) //Для тество, которые работают только с января 2024 года.
+		// if startDate.Before(now) {
+		// 	startDate = now
+		// }
+		if len(ruleSplited) > 3 {
+			return "", fmt.Errorf("Не верный формат")
+		}
+		if len(ruleSplited) == 2 {
+			var Month = "1,2,3,4,5,6,7,8,9,10,11,12"
+			ruleSplited = append(ruleSplited, Month)
+		}
+		SplitRuleMonth := strings.Split(ruleSplited[2], ",") //месяца
+		possibleMonths := make([]int, len(SplitRuleMonth))
+		for i, v := range SplitRuleMonth {
+			m, err := strconv.Atoi(v)
+			if err != nil {
+				return "", err
+			}
+			possibleMonths[i] = m
+		}
+		SplitRule := strings.Split(ruleSplited[1], ",") //дни
+		possibleDays := make([]int, len(SplitRule))
+		for i, v := range SplitRule {
+			m, err := strconv.Atoi(v)
+			if err != nil {
+				return "", err
+			}
+			if m > 31 || m < -2 {
+				return "", fmt.Errorf("Число больше 31")
+			}
+			possibleDays[i] = m
+		}
+
+		if len(ruleSplited) == 2 {
+			res, err := nextDateW(startDate, possibleDays, possibleMonths)
+			if err != nil {
+				return "", err
+			}
+			return res.Format(Layout), nil
+		}
+		if len(ruleSplited) == 3 {
+			res, err := nextDateW(startDate, possibleDays, possibleMonths)
+			if err != nil {
+				return "", err
+			}
+			return res.Format(Layout), nil
+
+		}
+		return "", nil
 	default:
 		return "", fmt.Errorf("некорректный тип правила")
 	}
 
+}
+
+func normalizeDays(days []int, year int, month int) []int {
+	lastDayOfMonth := time.Date(year, time.Month(month+1), 0, 0, 0, 0, 0, time.UTC).Day()
+	normalizedDays := make([]int, len(days))
+	for i, day := range days {
+
+		if day < 0 {
+			normalizedDays[i] = lastDayOfMonth + day + 1
+		} else {
+			normalizedDays[i] = day
+		}
+	}
+	return normalizedDays
+}
+
+func nextDateW(currentDate time.Time, possibleDays []int, possibleMonths []int) (time.Time, error) {
+	sort.Ints(possibleMonths)
+
+	currentDay := currentDate.Day()
+	currentMonth := int(currentDate.Month())
+	currentYear := currentDate.Year()
+
+	var targetDay, targetMonth int
+	found := false
+
+	for _, month := range possibleMonths {
+		normalizedDays := normalizeDays(possibleDays, currentYear, month)
+		sort.Ints(normalizedDays)
+		if month > currentMonth || (month == currentMonth && normalizedDays[len(normalizedDays)-1] > currentDay) {
+			targetMonth = month
+			for _, day := range normalizedDays {
+
+				if month > currentMonth || day > currentDay {
+					targetDay = day
+					found = true
+					break
+				}
+			}
+			if found {
+				break
+			}
+		}
+	}
+
+	if !found {
+		targetMonth = possibleMonths[0]
+		normalizedDays := normalizeDays(possibleDays, currentYear+1, targetMonth)
+		sort.Ints(normalizedDays)
+		targetDay = normalizedDays[0]
+		currentYear++
+	}
+
+	for {
+		lastDayOfMonth := time.Date(currentYear, time.Month(targetMonth+1), 0, 0, 0, 0, 0, currentDate.Location()).Day()
+		if targetDay <= lastDayOfMonth {
+			break
+		}
+		targetDay = normalizeDays(possibleDays, currentYear, targetMonth)[0]
+		targetMonth++
+		if targetMonth > 12 {
+			targetMonth = 1
+			currentYear++
+		}
+	}
+
+	return time.Date(currentYear, time.Month(targetMonth), targetDay, 0, 0, 0, 0, currentDate.Location()), nil
+}
+
+func MonthComparison(startDate time.Time, SplitRule []string) (time.Time, error) {
+	var res time.Time
+	intSplitRule := make([]int, len(SplitRule))
+	for i, rule := range SplitRule {
+		m, err := strconv.Atoi(rule)
+		if err != nil {
+			return time.Time{}, err
+		}
+		intSplitRule[i] = m
+	}
+	sort.Ints(intSplitRule)
+	startMonth := startDate.Month()
+	var targetMonth int
+	found := false
+	for _, rule := range intSplitRule {
+		m := rule
+		if m > int(startMonth) {
+			targetMonth = m
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		targetMonth = intSplitRule[0]
+	}
+
+	res = time.Date(startDate.Year(), startDate.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	for int(res.Month()) != targetMonth {
+		res = res.AddDate(0, 1, 0)
+
+	}
+	return res, nil
+}
+
+// func DayComparison(startDate time.Time, timeDur time.Time, SplitRule []string) (string, error) {
+// 	for _, v := range SplitRule {
+// 		newDate := startDate
+// 		daysToMove, err := strconv.Atoi(v)
+// 		if err != nil {
+// 			return "", err
+// 		}
+// 		d := startDate.AddDate(0, 1, -startDate.Day())
+// 		x := d.Day()
+// 		if daysToMove > x {
+// 			daysToMove = x
+// 		}
+// 		if daysToMove > 31 || daysToMove == 0 {
+// 			return "", fmt.Errorf("Нет такого дня недели")
+// 		}
+
+// 		if daysToMove < 0 {
+// 			daysToMove = daysIn(startDate.Month(), startDate.Year()) + daysToMove + 1
+// 		}
+// 		// if startDate >= time.Date(startDate.Year(), startDate.Month(), daysToMove, 0, 0, 0, 0, time.UTC) {
+
+// 		// }
+
+// 		var Time = true
+// 		for Time {
+// 			newDate = newDate.AddDate(0, 0, 1)
+// 			if int(newDate.Day()) == daysToMove {
+// 				Time = false
+// 			}
+// 		}
+// 		timeDurint, _ := strconv.Atoi(timeDur.Format(Layout))
+// 		newDateint, _ := strconv.Atoi(newDate.Format(Layout))
+// 		if timeDurint > newDateint {
+// 			timeDur = newDate
+// 		}
+// 	}
+// 	return timeDur.Format(Layout), nil
+// }
+
+func WeekComparison(newDate time.Time, daysToMove int) int {
+	var Time = true
+	n := 0
+	for Time {
+		n++
+		newDate = newDate.AddDate(0, 0, 1)
+		if int(newDate.Weekday()) == daysToMove {
+			Time = false
+		}
+	}
+	return n
 }
 
 func (db DB) ConfirmTask(id string) (entity.AddTask, error) {

@@ -1,15 +1,16 @@
 # Файлы для итогового задания
 
 Настройки для тестов:
-var Port = 7540
+var Port = 7540                       //TODO_PORT из файла .env
 var DBFile = "../scheduler.db"
-var FullNextDate = false
+var FullNextDate = true
 var Search = true
-var Token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IjEzMjQ2NTc5ODAifQ.NfMfAv3aZK7z1xBpFZqOjuPKx3SyfaAyR2rDzzCnIcc`
+var Token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiJ9.sgOfht2gj7-D_-HdrvnboC_ehEq-UGdzQQpl3devG_s`
+
 
 Адрес в браузере: http://localhost:7540/
 
-Пароль: 1324657980
+Пароль: 1324657980         //TODO_PASSWORD из файла .env
 
 Проект Todo List. 
 Может получать, изменять, вносить, подтверждать задачи. И также можно осуществлять поиск через поисковую строку.
@@ -27,9 +28,6 @@ var Token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IjEzMjQ2NTc5OD
 
 В папке web лежит весь фронт.
 
-*На данном этапе нет первого задания со звездочкой, второго, третьего. И также пароль хранится в коде на данный момент.
-*планирую доделать все задания
-
 Создаю и запускаю контейнер: 
- docker build -t maliven1/todo-list:v1.0.0 .
- docker run -p 7540:7540 -v schedule.db:schedule.db maliven1/todo-list:v1.0.0 
+ docker build  -t maliven1/todo-list:v1.0.0 .   
+ docker run -p 7540:7540 -v $PWD/schedule.db:/schedule.db  maliven1/todo-list:v1.0.0     // для винды

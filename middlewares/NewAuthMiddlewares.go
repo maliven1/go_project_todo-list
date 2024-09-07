@@ -3,16 +3,15 @@ package middlewares
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 var secret = []byte("dsa53219nlxvnju")
 
-var TODO_PASSWORD = "1324657980"
-
 var claims = jwt.MapClaims{
-	"password": TODO_PASSWORD,
+	"password": os.Getenv("TODO_PASSWORD"),
 }
 
 func CheckToken(token string) bool {
@@ -27,7 +26,7 @@ func NewAuthMeddlewares() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// смотрим наличие пароля
-			if len(TODO_PASSWORD) > 0 {
+			if len(os.Getenv("TODO_PASSWORD")) > 0 {
 				var jwtToken string // JWT-токен из куки
 				// получаем куку
 				cookie, err := r.Cookie("token")

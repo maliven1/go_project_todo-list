@@ -60,7 +60,6 @@ func NewTaskHandler(db database.DB) func(res http.ResponseWriter, req *http.Requ
 				return
 			}
 		}
-
 		id, err := db.AddTask(task)
 		if err != nil {
 			log.Panicln(err)
