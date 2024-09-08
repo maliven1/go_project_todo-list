@@ -222,7 +222,7 @@ func NextDate(now time.Time, date string, repeat string) (string, error) {
 
 		return timeDur.Format(Layout), nil
 	case "m":
-		// now = time.Date(2024, time.January, 20, 0, 0, 0, 0, time.Local) //Для тество, которые работают только с января 2024 года.
+		// now = time.Date(2024, time.January, 20, 0, 0, 0, 0, time.Local) //Для тестов, которые работают только с января 2024 года.
 		// if startDate.Before(now) {
 		// 	startDate = now
 		// }
@@ -342,42 +342,6 @@ func nextDateW(currentDate time.Time, possibleDays []int, possibleMonths []int) 
 	}
 
 	return time.Date(currentYear, time.Month(targetMonth), targetDay, 0, 0, 0, 0, currentDate.Location()), nil
-}
-
-func MonthComparison(startDate time.Time, SplitRule []string) (time.Time, error) {
-	var res time.Time
-	intSplitRule := make([]int, len(SplitRule))
-	for i, rule := range SplitRule {
-		m, err := strconv.Atoi(rule)
-		if err != nil {
-			return time.Time{}, err
-		}
-		intSplitRule[i] = m
-	}
-	sort.Ints(intSplitRule)
-	startMonth := startDate.Month()
-	var targetMonth int
-	found := false
-	for _, rule := range intSplitRule {
-		m := rule
-		if m > int(startMonth) {
-			targetMonth = m
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		targetMonth = intSplitRule[0]
-	}
-
-	res = time.Date(startDate.Year(), startDate.Month(), 1, 0, 0, 0, 0, time.UTC)
-
-	for int(res.Month()) != targetMonth {
-		res = res.AddDate(0, 1, 0)
-
-	}
-	return res, nil
 }
 
 func WeekComparison(newDate time.Time, daysToMove int) int {

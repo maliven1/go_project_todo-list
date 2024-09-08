@@ -30,4 +30,4 @@ var Token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiJ9.sgOfht2gj
 
 Создаю и запускаю контейнер: 
  docker build  -t maliven1/todo-list:v1.0.0 .   
- docker run -p 7540:7540 -v $PWD/schedule.db:/schedule.db  maliven1/todo-list:v1.0.0     // для винды
+ docker run -p 7540:7540 -v $PWD/scheduler.db:/scheduler.db  maliven1/todo-list:v1.0.0     

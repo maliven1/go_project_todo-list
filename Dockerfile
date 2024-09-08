@@ -18,7 +18,7 @@ EXPOSE ${TODO_PORT}
 
 COPY  web ./web
 
-COPY --from=builder  final . 
+COPY --from=builder  final .
 
 COPY ${TODO_DBFILE} .
 
