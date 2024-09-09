@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	database "github.com/maliven1/go_final_project/db"
+	"github.com/maliven1/go_final_project/database"
 )
 
 func DeleteTaskHandler(db database.DB) func(w http.ResponseWriter, r *http.Request) {
@@ -20,14 +20,13 @@ func DeleteTaskHandler(db database.DB) func(w http.ResponseWriter, r *http.Reque
 			responseWhithError(w, "Не верный формат id")
 			return
 		}
-
-		if _, err := db.DeleteID(n); err != nil {
+		if err := db.Delete(n); err != nil {
 			responseWhithError(w, "Ошибка удаления")
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("{}"))
+		_, _ = w.Write([]byte("{}"))
 	}
 
 }

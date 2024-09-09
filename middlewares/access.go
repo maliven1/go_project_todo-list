@@ -22,7 +22,7 @@ func CheckToken(token string) bool {
 	}
 	return token == signedToken
 }
-func NewAuthMeddlewares() func(next http.Handler) http.Handler {
+func Access() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// смотрим наличие пароля

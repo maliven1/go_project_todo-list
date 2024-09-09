@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	database "github.com/maliven1/go_final_project/db"
+	"github.com/maliven1/go_final_project/database"
 	"github.com/maliven1/go_final_project/entity"
 )
 

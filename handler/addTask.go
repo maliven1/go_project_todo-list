@@ -3,13 +3,13 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
 
-	database "github.com/maliven1/go_final_project/db"
+	"github.com/maliven1/go_final_project/database"
 	"github.com/maliven1/go_final_project/entity"
+	"github.com/maliven1/go_final_project/logic"
 )
 
 const Layout = "20060102"
@@ -26,7 +26,7 @@ type TaskResponse struct {
 
 func NewTaskHandler(db database.DB) func(res http.ResponseWriter, req *http.Request) {
 	return func(res http.ResponseWriter, req *http.Request) {
-		var task entity.Task
+		var task entity.AddTask
 		var buf bytes.Buffer
 		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		now := time.Now()
@@ -54,7 +54,7 @@ func NewTaskHandler(db database.DB) func(res http.ResponseWriter, req *http.Requ
 			task.Date = now.Format(Layout)
 		}
 		if task.Repeat != "" {
-			_, err := database.NextDate(now, task.Date, task.Repeat)
+			_, err := logic.NextDate(now, task.Date, task.Repeat)
 			if err != nil {
 				responseWhithError(res, "Не верное условие повторения")
 				return
@@ -62,7 +62,6 @@ func NewTaskHandler(db database.DB) func(res http.ResponseWriter, req *http.Requ
 		}
 		id, err := db.AddTask(task)
 		if err != nil {
-			log.Panicln(err)
 			r, _ := json.Marshal(ErrorResponse{Message: "Ошибка при получение id"})
 			res.WriteHeader(http.StatusBadRequest)
 			res.Write(r)
@@ -86,7 +85,7 @@ func NextDateHandler(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, "Некорректный формат даты", http.StatusBadRequest)
 		return
 	}
-	nextDate, err := database.NextDate(nowTime, date, repeat)
+	nextDate, err := logic.NextDate(nowTime, date, repeat)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return

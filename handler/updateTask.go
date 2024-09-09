@@ -7,8 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	database "github.com/maliven1/go_final_project/db"
+	"github.com/maliven1/go_final_project/database"
 	"github.com/maliven1/go_final_project/entity"
+	"github.com/maliven1/go_final_project/logic"
 )
 
 // сократить повторяющийся код (addTask)
@@ -56,7 +57,7 @@ func UpdateTaskHandler(db database.DB) func(res http.ResponseWriter, req *http.R
 			task.Date = now.Format(Layout)
 		}
 		if task.Repeat != "" {
-			_, err := database.NextDate(now, task.Date, task.Repeat)
+			_, err := logic.NextDate(now, task.Date, task.Repeat)
 			if err != nil {
 				responseWhithError(res, "Не верное условие повторения")
 				return

@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/joho/godotenv"
-	database "github.com/maliven1/go_final_project/db"
+	"github.com/maliven1/go_final_project/database"
 	"github.com/maliven1/go_final_project/handler"
 	"github.com/maliven1/go_final_project/middlewares"
 	_ "modernc.org/sqlite"
@@ -33,7 +33,7 @@ func main() {
 
 	r.Handle("/*", http.StripPrefix("/", fs))
 	r.Group(func(r chi.Router) {
-		r.Use(middlewares.NewAuthMeddlewares())
+		r.Use(middlewares.Access())
 		r.Post("/api/task", handler.NewTaskHandler(db))
 		r.Get("/api/tasks", handler.GetTasks(db))
 		r.Get("/api/task", handler.GetTasksParam(db))

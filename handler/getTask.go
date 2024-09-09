@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	database "github.com/maliven1/go_final_project/db"
+	"github.com/maliven1/go_final_project/database"
 )
 
 func GetTasks(d database.DB) func(w http.ResponseWriter, r *http.Request) {
