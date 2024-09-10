@@ -1,4 +1,4 @@
-package logic
+package nextdate
 
 import (
 	"fmt"

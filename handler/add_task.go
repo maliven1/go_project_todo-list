@@ -9,7 +9,7 @@ import (
 
 	"github.com/maliven1/go_final_project/database"
 	"github.com/maliven1/go_final_project/entity"
-	"github.com/maliven1/go_final_project/logic"
+	"github.com/maliven1/go_final_project/nextdate"
 )
 
 const Layout = "20060102"
@@ -54,7 +54,7 @@ func NewTaskHandler(db database.DB) func(res http.ResponseWriter, req *http.Requ
 			task.Date = now.Format(Layout)
 		}
 		if task.Repeat != "" {
-			_, err := logic.NextDate(now, task.Date, task.Repeat)
+			_, err := nextdate.NextDate(now, task.Date, task.Repeat)
 			if err != nil {
 				responseWhithError(res, "Не верное условие повторения")
 				return
@@ -85,7 +85,7 @@ func NextDateHandler(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, "Некорректный формат даты", http.StatusBadRequest)
 		return
 	}
-	nextDate, err := logic.NextDate(nowTime, date, repeat)
+	nextDate, err := nextdate.NextDate(nowTime, date, repeat)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return

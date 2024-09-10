@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/maliven1/go_final_project/entity"
-	"github.com/maliven1/go_final_project/logic"
+	"github.com/maliven1/go_final_project/nextdate"
 )
 
 func (db DB) Delete(id string) error {
@@ -45,7 +45,7 @@ func (db DB) ConfirmTask(id string) (entity.AddTask, error) {
 		return entity.AddTask{}, nil
 	}
 
-	task.Date, err = logic.NextDate(now, task.Date, task.Repeat)
+	task.Date, err = nextdate.NextDate(now, task.Date, task.Repeat)
 	if err != nil {
 		return entity.AddTask{}, err
 	}
