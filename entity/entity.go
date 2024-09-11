@@ -19,5 +19,3 @@ type TokenJson struct {
 type UserPass struct {
 	Password string `json:"password"`
 }
-
-//func конструктор с новой таской. серил десер.

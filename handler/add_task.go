@@ -26,6 +26,7 @@ type TaskResponse struct {
 
 func NewTaskHandler(db database.DB) func(res http.ResponseWriter, req *http.Request) {
 	return func(res http.ResponseWriter, req *http.Request) {
+
 		var task entity.AddTask
 		var buf bytes.Buffer
 		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -60,6 +61,7 @@ func NewTaskHandler(db database.DB) func(res http.ResponseWriter, req *http.Requ
 				return
 			}
 		}
+
 		id, err := db.AddTask(task)
 		if err != nil {
 			r, _ := json.Marshal(ErrorResponse{Message: "Ошибка при получение id"})
@@ -90,7 +92,6 @@ func NextDateHandler(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// Возвращаем ответ
 	_, err = res.Write([]byte(nextDate))
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
